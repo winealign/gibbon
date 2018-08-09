@@ -5,7 +5,7 @@ describe Gibbon::APIRequest do
   let(:api_key) { "1234-us1" }
 
   before do
-    @gibbon = Gibbon::Request.new(api_key: api_key)
+    @gibbon = Gibbon::Request.new(api_key)
     @api_root = "https://apikey:#{api_key}@us1.api.mailchimp.com/3.0"
   end
 
@@ -34,7 +34,7 @@ describe Gibbon::APIRequest do
     it "includes status and raw body even when json can't be parsed" do
       response_values = {:status => 503, :headers => {}, :body => 'A non JSON response'}
       exception = Faraday::Error::ClientError.new("the server responded with status 503", response_values)
-      api_request = Gibbon::APIRequest.new(builder: Gibbon::Request)
+      api_request = Gibbon::APIRequest.new(Gibbon::Request)
       begin
         api_request.send :handle_error, exception
       rescue => boom
@@ -47,7 +47,7 @@ describe Gibbon::APIRequest do
       it "sets title and detail on the error params" do
         response_values = {:status => 422, :headers => {}, :body => '{"title": "foo", "detail": "bar"}'}
         exception = Faraday::Error::ClientError.new("the server responded with status 422", response_values)
-        api_request = Gibbon::APIRequest.new(builder: Gibbon::Request.new(symbolize_keys: true))
+        api_request = Gibbon::APIRequest.new(Gibbon::Request.new(nil, nil, nil, nil, nil, nil, true))
         begin
           api_request.send :handle_error, exception
         rescue => boom

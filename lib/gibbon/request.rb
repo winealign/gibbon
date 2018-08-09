@@ -5,7 +5,7 @@ module Gibbon
     DEFAULT_TIMEOUT = 60
     DEFAULT_OPEN_TIMEOUT = 60
 
-    def initialize(api_key: nil, api_endpoint: nil, timeout: nil, open_timeout: nil, proxy: nil, faraday_adapter: nil, symbolize_keys: false, debug: false, logger: nil)
+    def initialize(api_key=nil, api_endpoint=nil, timeout=nil, open_timeout=nil, proxy=nil, faraday_adapter=nil, symbolize_keys=false, debug=false, logger=nil)
       @path_parts = []
       @api_key = api_key || self.class.api_key || ENV['MAILCHIMP_API_KEY']
       @api_key = @api_key.strip if @api_key
@@ -43,32 +43,32 @@ module Gibbon
       @path_parts.join('/')
     end
 
-    def create(params: nil, headers: nil, body: nil)
-      APIRequest.new(builder: self).post(params: params, headers: headers, body: body)
+    def create(params=nil, headers=nil, body=nil)
+      APIRequest.new(self).post(params, headers, body)
     ensure
       reset
     end
 
-    def update(params: nil, headers: nil, body: nil)
-      APIRequest.new(builder: self).patch(params: params, headers: headers, body: body)
+    def update(params=nil, headers=nil, body=nil)
+      APIRequest.new(self).patch(params, headers, body)
     ensure
       reset
     end
 
-    def upsert(params: nil, headers: nil, body: nil)
-      APIRequest.new(builder: self).put(params: params, headers: headers, body: body)
+    def upsert(params=nil, headers=nil, body=nil)
+      APIRequest.new(self).put(params, headers, body)
     ensure
       reset
     end
 
-    def retrieve(params: nil, headers: nil)
-      APIRequest.new(builder: self).get(params: params, headers: headers)
+    def retrieve(params=nil, headers=nil)
+      APIRequest.new(self).get(params, headers)
     ensure
       reset
     end
 
-    def delete(params: nil, headers: nil)
-      APIRequest.new(builder: self).delete(params: params, headers: headers)
+    def delete(params=nil, headers=nil)
+      APIRequest.new(self).delete(params, headers)
     ensure
       reset
     end
@@ -83,7 +83,7 @@ module Gibbon
       attr_accessor :api_key, :timeout, :open_timeout, :api_endpoint, :proxy, :faraday_adapter, :symbolize_keys, :debug, :logger
 
       def method_missing(sym, *args, &block)
-        new(api_key: self.api_key, api_endpoint: self.api_endpoint, timeout: self.timeout, open_timeout: self.open_timeout, faraday_adapter: self.faraday_adapter, symbolize_keys: self.symbolize_keys, debug: self.debug, proxy: self.proxy, logger: self.logger).send(sym, *args, &block)
+        new(self.api_key, self.api_endpoint, self.timeout, self.open_timeout, self.faraday_adapter, self.symbolize_keys, self.debug, self.proxy, self.logger).send(sym, *args, &block)
       end
 
       def respond_to_missing?(method_name, include_private = false)

@@ -21,8 +21,8 @@ describe Gibbon do
       .with(body: MultiJson.dump(request_body))
       .to_return(status: 200)
 
-    Gibbon::Request.new(api_key: api_key)
+    Gibbon::Request.new(api_key)
       .lists(list_id).members(member_id)
-      .upsert(body: request_body)
+      .upsert(nil, nil, request_body)
   end
 end

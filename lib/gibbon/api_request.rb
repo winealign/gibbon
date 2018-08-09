@@ -2,16 +2,16 @@ module Gibbon
   class APIRequest
     include Helpers
 
-    def initialize(builder: nil)
+    def initialize(builder=nil)
       @request_builder = builder
     end
 
-    def post(params: nil, headers: nil, body: nil)
+    def post(params=nil, headers=nil, body=nil)
       validate_api_key
 
       begin
         response = self.rest_client.post do |request|
-          configure_request(request: request, params: params, headers: headers, body: MultiJson.dump(body))
+          configure_request(request, params, headers, MultiJson.dump(body))
         end
         parse_response(response)
       rescue => e
@@ -19,12 +19,12 @@ module Gibbon
       end
     end
 
-    def patch(params: nil, headers: nil, body: nil)
+    def patch(params=nil, headers=nil, body=nil)
       validate_api_key
 
       begin
         response = self.rest_client.patch do |request|
-          configure_request(request: request, params: params, headers: headers, body: MultiJson.dump(body))
+          configure_request(request, params, headers, MultiJson.dump(body))
         end
         parse_response(response)
       rescue => e
@@ -32,12 +32,12 @@ module Gibbon
       end
     end
 
-    def put(params: nil, headers: nil, body: nil)
+    def put(params=nil, headers=nil, body=nil)
       validate_api_key
 
       begin
         response = self.rest_client.put do |request|
-          configure_request(request: request, params: params, headers: headers, body: MultiJson.dump(body))
+          configure_request(request, params, headers, MultiJson.dump(body))
         end
         parse_response(response)
       rescue => e
@@ -45,12 +45,12 @@ module Gibbon
       end
     end
 
-    def get(params: nil, headers: nil)
+    def get(params=nil, headers=nil)
       validate_api_key
 
       begin
         response = self.rest_client.get do |request|
-          configure_request(request: request, params: params, headers: headers)
+          configure_request(request, params, headers)
         end
         parse_response(response)
       rescue => e
@@ -58,12 +58,12 @@ module Gibbon
       end
     end
 
-    def delete(params: nil, headers: nil)
+    def delete(params=nil, headers=nil)
       validate_api_key
 
       begin
         response = self.rest_client.delete do |request|
-          configure_request(request: request, params: params, headers: headers)
+          configure_request(request, params, headers)
         end
         parse_response(response)
       rescue => e
@@ -134,7 +134,7 @@ module Gibbon
       raise error_to_raise
     end
 
-    def configure_request(request: nil, params: nil, headers: nil, body: nil)
+    def configure_request(request=nil, params=nil, headers=nil, body=nil)
       if request
         request.params.merge!(params) if params
         request.headers['Content-Type'] = 'application/json'
@@ -146,7 +146,7 @@ module Gibbon
     end
 
     def rest_client
-      client = Faraday.new(self.api_url, proxy: self.proxy, ssl: { version: "TLSv1_2" }) do |faraday|
+      client = Faraday.new(self.api_url, {proxy: self.proxy, ssl: { version: "TLSv1_2" }}) do |faraday|
         faraday.response :raise_error
         faraday.adapter adapter
         if @request_builder.debug
@@ -163,8 +163,8 @@ module Gibbon
       if response.body && !response.body.empty?
         begin
           headers = response.headers
-          body = MultiJson.load(response.body, symbolize_keys: symbolize_keys)
-          parsed_response = Response.new(headers: headers, body: body)
+          body = MultiJson.load(response.body, symbolize_keys)
+          parsed_response = Response.new(headers, body)
         rescue MultiJson::ParseError
           error_params = { title: "UNPARSEABLE_RESPONSE", status_code: 500 }
           error = MailChimpError.new("Unparseable response: #{response.body}", error_params)
